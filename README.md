@@ -1,0 +1,2 @@
+# SimpleMiraiPlugins
+简简单单做着玩的Mirai机器人插件
