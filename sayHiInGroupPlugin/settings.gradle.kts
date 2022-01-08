@@ -1,1 +1,1 @@
-rootProject.name = "sayHiInGroupplugin"
+rootProject.name = "SayHiInGroupPlugin"
