@@ -24,7 +24,7 @@
 
 ## Usage
 
-下载`SayHiInGroupPlugin.jar`放在`mirai-console/plugins`下，启动mcl。
+下载[`SayHiInGroupPlugin.jar`](https://github.com/gaylong9/SimpleMiraiPlugins/releases/tag/jar)放在`mirai-console/plugins`下，启动mcl。
 
 指令 `/sayHiInGroupPlugin <operation> (content)`：
 

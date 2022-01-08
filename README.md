@@ -11,14 +11,17 @@ Mirai配置参考：
 
 ### 当前内容
 
-* sayHiInGroupPlugin：试验demo，群内艾特bot会回复
-* RemindMoYuPlugin：定时发送提醒摸鱼的消息
+* [sayHiInGroupPlugin](https://github.com/gaylong9/SimpleMiraiPlugins/tree/main/sayHiInGroupPlugin)：试验demo，群内艾特bot会回复
+* [RemindMoYuPlugin](https://github.com/gaylong9/SimpleMiraiPlugins/tree/main/RemindMoYuPlugin)：定时发送提醒摸鱼的消息
 
 
 
 ### TODO
 
-* RemindMoYuPlugin添加停止功能，丰富提醒语句库
-* 复读bot
-* 学习添加bot配置参数
-* [其他好玩功能](https://github.com/Genanik/Mirai-picfinder-robot)
+- [x] 学习添加bot配置参数、数据持久化
+- [ ] 复读bot
+- [ ] RemindMoYuPlugin添加命令功能，并丰富提醒语句库
+
+
+
+[其他作者的好玩功能](https://github.com/Genanik/Mirai-picfinder-robot)
