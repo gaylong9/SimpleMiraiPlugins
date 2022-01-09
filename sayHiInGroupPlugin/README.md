@@ -8,7 +8,7 @@
 
 因`JAutoSavePluginData`有bug，转为自行实现数据持久化。数据文件同原生`PluginData`一致，存在
 
-`mirai-console/data/org.gaylong9.SayHiInGroupPlugin/PluginData.yml`。
+`mirai-console/data/org.gaylong9.SayHiInGroupPlugin/SayHiInGroupPlugin.yml`。
 
 
 

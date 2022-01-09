@@ -6,13 +6,13 @@ import net.mamoe.mirai.utils.MiraiLogger;
 
 import java.util.Locale;
 
-public class PluginCommand extends JSimpleCommand {
-    public static final PluginCommand INSTANCE = new PluginCommand();
+public class SayHiInGroupPluginCommand extends JSimpleCommand {
+    public static final SayHiInGroupPluginCommand INSTANCE = new SayHiInGroupPluginCommand();
 
-    private final MiraiLogger logger = MiraiLogger.Factory.INSTANCE.create(PluginCommand.class);
-    private final MyPluginData pluginData = MyPluginData.INSTANCE;
+    private final MiraiLogger logger = MiraiLogger.Factory.INSTANCE.create(SayHiInGroupPluginCommand.class);
+    private final SayHiInGroupPluginData pluginData = SayHiInGroupPluginData.INSTANCE;
 
-    private PluginCommand() {
+    private SayHiInGroupPluginCommand() {
         super(SayHiInGroupplugin.INSTANCE,
                 "sayHiInGroupPlugin",
                 "sayhiingroupplugin");
@@ -84,6 +84,10 @@ public class PluginCommand extends JSimpleCommand {
             return;
         } catch (NumberFormatException e) {
             logger.info("illegal group id: " + content);
+            return;
+        }
+        if (pluginData.groups.contains(groupId)) {
+            logger.info("group " + groupId + " already in reply list");
             return;
         }
         pluginData.groups.add(groupId);

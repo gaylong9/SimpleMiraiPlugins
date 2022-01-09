@@ -2,11 +2,11 @@ package org.gaylong9;
 
 import java.util.*;
 
-public class MyPluginData{
-    public static final MyPluginData INSTANCE = new MyPluginData();
+public class SayHiInGroupPluginData {
+    public static final SayHiInGroupPluginData INSTANCE = new SayHiInGroupPluginData();
     private final String saveName;
-    public MyPluginData() {
-        saveName = "PluginData";
+    public SayHiInGroupPluginData() {
+        saveName = "SayHiInGroupPluginData";
     }
 
     public String getSaveName() {

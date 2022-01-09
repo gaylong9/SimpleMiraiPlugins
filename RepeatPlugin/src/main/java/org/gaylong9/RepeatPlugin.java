@@ -4,50 +4,43 @@ import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.console.command.CommandManager;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
-import net.mamoe.mirai.contact.Member;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-import net.mamoe.mirai.message.data.Face;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.*;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
-public final class SayHiInGroupplugin extends JavaPlugin {
-    public static final SayHiInGroupplugin INSTANCE = new SayHiInGroupplugin();
+public final class RepeatPlugin extends JavaPlugin {
+    public static final RepeatPlugin INSTANCE = new RepeatPlugin();
 
     private MiraiLogger logger;
-    private static final String pluginName = "SayHiInGroupPlugin";
-    private static final String projectName = "org.gaylong9.SayHiInGroupPlugin";
+    private static final String pluginName = "RepeatPlugin";
+    private static final String projectName = "org.gaylong9.RepeatPlugin";
 
-    private SayHiInGroupplugin() {
-        super(new JvmPluginDescriptionBuilder(projectName, "1.1-RELEASE")
+
+    private RepeatPlugin() {
+        super(new JvmPluginDescriptionBuilder(projectName, "1.0-RELEASE")
                 .name(pluginName)
-                .author("jsy")
+                .info("复读")
+                .author("gaylong9")
                 .build());
     }
 
     @Override
     public void onEnable() {
         logger = getLogger();
-        logger.info("SayHiInGroupPlugin loaded");
-        // logger.info(System.getProperty("user.dir")); // .../mirai-console
+        logger.info("Plugin loaded!");
 
         // 引入插件数据
-        SayHiInGroupPluginData pluginData = SayHiInGroupPluginData.INSTANCE;
-        loadPluginData(pluginData);
-        // mirai JAutoSavePluginData有bug
-        // reloadPluginData(pluginData);
-        // MemoryPluginDataStorage.create().store(pluginData::getSaveName, pluginData);
-        // MultiFilePluginDataStorage.create(Paths.get(pluginData.getSaveName())).store(pluginData::getSaveName, pluginData);
+        RepeatPluginData pluginData = RepeatPluginData.INSTANCE;
+        loadPluginData();
 
         // 注册命令
-        CommandManager.INSTANCE.registerCommand(SayHiInGroupPluginCommand.INSTANCE, false);
+        CommandManager.INSTANCE.registerCommand(RepeatPluginCommand.INSTANCE, false);
 
         // 监听群聊消息
         Listener<GroupMessageEvent> listener = GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, (GroupMessageEvent event) -> {
@@ -57,51 +50,47 @@ public final class SayHiInGroupplugin extends JavaPlugin {
 
             // 若插件未启动则不执行操作
             if (!pluginData.isRunning) {
-                logger.info("bot " + botId + " was at, but sayHiInGroupPlugin is not running.");
                 return;
             }
             // 群号码，specific模式下若不在设置群聊中则不生效
             long groupId = event.getGroup().getId();
             if (pluginData.mode.equals("specific") && !pluginData.groups.contains(groupId)) {
-                logger.info("bot " + botId + " was at, but group " + groupId + " is not in reply list");
                 return;
             }
 
-            // 群聊消息发送者
-            Member sender = event.getSender();
-            // 群聊消息内容
-            String content = event.getMessage().serializeToMiraiCode();
-
-            // 手机QQ艾特会在尾部多一个空格，故trim处理
-            if (content.trim().equals("[mirai:at:" + botId + "]")) {
-                // 组合发送消息并发送
-                PlainText text = new PlainText("你好啊，");
-                String name = sender.getNameCard();
-                if (name.isEmpty()) {
-                    name = sender.getNick();
-                }
-                ThreadLocalRandom random = ThreadLocalRandom.current();
-                int faceId = random.nextInt(0, 325);
-                while (Face.names[faceId] == null || Face.names[faceId].isEmpty()) {
-                    faceId = random.nextInt(0, 325);
-                }
-                Face face = new Face(faceId);
-                MessageChainBuilder builder = new MessageChainBuilder();
-                builder.add(text);
-                builder.add(name);
-                builder.add(face);
-                event.getSubject().sendMessage(builder.build());
+            // 群聊消息
+            // 获取的是MessageChain，剔除MessageMetaData，仅保留可见消息
+            MessageChain receiveChain = event.getMessage();
+            MessageChainBuilder builder = new MessageChainBuilder();
+            for (int i = 1; i < receiveChain.size(); i++) {
+                builder.add(receiveChain.get(i));
             }
+            MessageChain msg = builder.build();
+
+            if (msg.equals(pluginData.lastReceive)) {
+                if (!msg.equals(pluginData.lastSend)) {
+                    // 别人在复读而bot还未参与时，加入复读
+                    event.getSubject().sendMessage(msg);
+                    pluginData.lastSend = msg;
+                }
+            } else {
+                // 别人没有复读 或 开启新话题，清空上次发送记录
+                // 以便 当群友复读之前内容时能再次加入复读
+                pluginData.lastSend = pluginData.emptyMsg;
+            }
+            pluginData.lastReceive = msg;
+
         });
     }
 
     @Override
     public void onDisable() {
-        savePluginData(SayHiInGroupPluginData.INSTANCE);
+        savePluginData();
         super.onDisable();
     }
 
-    private void loadPluginData(SayHiInGroupPluginData pluginData) {
+    private void loadPluginData() {
+        RepeatPluginData pluginData = RepeatPluginData.INSTANCE;
         Yaml yaml = new Yaml();
         String mclPath = System.getProperty("user.dir");
         String pluginDataFolderPath = mclPath + "/data/" + projectName;
@@ -125,7 +114,7 @@ public final class SayHiInGroupplugin extends JavaPlugin {
                 logger.info("yml data does not exist, will create new one");
                 boolean buildSucc = ymlFile.createNewFile();
                 logger.info(buildSucc? "create success": "create fail");
-                savePluginData(pluginData);
+                savePluginData();
                 return;
             }
         } catch (IOException e) {
@@ -149,7 +138,8 @@ public final class SayHiInGroupplugin extends JavaPlugin {
         }
     }
 
-    private void savePluginData(SayHiInGroupPluginData pluginData) {
+    private void savePluginData() {
+        RepeatPluginData pluginData = RepeatPluginData.INSTANCE;
         Yaml yaml = new Yaml();
         String mclPath = System.getProperty("user.dir");
         String ymlPath = mclPath + "/data/" + projectName + "/" + pluginData.getSaveName() + ".yml";

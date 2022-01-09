@@ -13,14 +13,21 @@ Mirai配置参考：
 
 * [sayHiInGroupPlugin](https://github.com/gaylong9/SimpleMiraiPlugins/tree/main/sayHiInGroupPlugin)：试验demo，群内艾特bot会回复
 * [RemindMoYuPlugin](https://github.com/gaylong9/SimpleMiraiPlugins/tree/main/RemindMoYuPlugin)：定时发送提醒摸鱼的消息
+* [RepeatPlugin](https://github.com/gaylong9/SimpleMiraiPlugins/tree/main/RepeatPlugin)：复读bot
 
 
 
 ### TODO
 
 - [x] 学习添加bot配置参数、数据持久化
-- [ ] 复读bot
+- [x] 复读bot
 - [ ] RemindMoYuPlugin添加命令功能，并丰富提醒语句库
+
+
+
+## 注意
+
+* 开发插件时，多个插件内的类名（如命令类`Command`、数据类`PluginData`等）不能相同，否则放在一个console中运行时会出错
 
 
 
