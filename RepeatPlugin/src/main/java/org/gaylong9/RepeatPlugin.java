@@ -36,8 +36,10 @@ public final class RepeatPlugin extends JavaPlugin {
         logger.info("Plugin loaded!");
 
         // 引入插件数据
-        RepeatPluginData pluginData = RepeatPluginData.INSTANCE;
         loadPluginData();
+        RepeatPluginData pluginData = RepeatPluginData.INSTANCE;
+        HashMap<Long, MessageChain> lastReceive = pluginData.lastReceive;
+        HashMap<Long, MessageChain> lastSend = pluginData.lastSend;
 
         // 注册命令
         CommandManager.INSTANCE.registerCommand(RepeatPluginCommand.INSTANCE, false);
@@ -54,6 +56,7 @@ public final class RepeatPlugin extends JavaPlugin {
             }
             // 群号码，specific模式下若不在设置群聊中则不生效
             long groupId = event.getGroup().getId();
+            Long groupID = groupId;
             if (pluginData.mode.equals("specific") && !pluginData.groups.contains(groupId)) {
                 return;
             }
@@ -65,21 +68,24 @@ public final class RepeatPlugin extends JavaPlugin {
             for (int i = 1; i < receiveChain.size(); i++) {
                 builder.add(receiveChain.get(i));
             }
-            MessageChain msg = builder.build();
+            MessageChain receiveMsg = builder.build();
 
-            if (msg.equals(pluginData.lastReceive)) {
-                if (!msg.equals(pluginData.lastSend)) {
+            // 根据新消息的来源群 的上次接收与发送 决定下一步操作
+            // 若该群有过记录
+            if (receiveMsg.equals(lastReceive.getOrDefault(groupID, pluginData.emptyMsg))) {
+                if (!receiveMsg.equals(lastSend.getOrDefault(groupID, pluginData.emptyMsg))) {
                     // 别人在复读而bot还未参与时，加入复读
-                    event.getSubject().sendMessage(msg);
-                    pluginData.lastSend = msg;
+                    event.getSubject().sendMessage(receiveMsg);
+                    lastSend.put(groupID, receiveMsg);
                 }
             } else {
                 // 别人没有复读 或 开启新话题，清空上次发送记录
                 // 以便 当群友复读之前内容时能再次加入复读
-                pluginData.lastSend = pluginData.emptyMsg;
+                // 同时，若该群自bot启动以来第一次发消息，也会到此
+                lastSend.put(groupID, pluginData.emptyMsg);
             }
-            pluginData.lastReceive = msg;
 
+            lastReceive.put(groupID, receiveMsg);
         });
     }
 
