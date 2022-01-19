@@ -11,7 +11,7 @@ import java.util.List;
 public class RepeatPluginData {
     public static final RepeatPluginData INSTANCE = new RepeatPluginData();
     private final String saveName;
-    public RepeatPluginData() {
+    private RepeatPluginData() {
         saveName = "RepeatPluginData";
         MessageChainBuilder builder = new MessageChainBuilder();
         builder.add("");

@@ -81,9 +81,10 @@ public final class SayHiInGroupplugin extends JavaPlugin {
                     name = sender.getNick();
                 }
                 ThreadLocalRandom random = ThreadLocalRandom.current();
-                int faceId = random.nextInt(0, 325);
-                while (Face.names[faceId] == null || Face.names[faceId].isEmpty()) {
-                    faceId = random.nextInt(0, 325);
+                int bound = Face.names.length;
+                int faceId = random.nextInt(0, bound);
+                while (Face.names[faceId] == null || Face.names[faceId].equals("表情")) {
+                    faceId = random.nextInt(0, bound);
                 }
                 Face face = new Face(faceId);
                 MessageChainBuilder builder = new MessageChainBuilder();

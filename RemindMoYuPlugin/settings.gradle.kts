@@ -1,1 +1,1 @@
-rootProject.name = "remindMoYuPlugin"
+rootProject.name = "RemindMoYuPlugin"
