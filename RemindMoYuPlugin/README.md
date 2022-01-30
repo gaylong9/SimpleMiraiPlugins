@@ -6,7 +6,7 @@
 
 yml数据存在
 
-`mirai-console/data/org.gaylong9.RemindMoYuPlugin/RemindMoYuPlugin.yml`。
+`mirai-console/data/org.gaylong9.RemindMoYuPlugin/RemindMoYuPluginData.yml`。
 
 
 
@@ -19,7 +19,7 @@ yml数据存在
 * `/RemindMoYuPlugin start` 启动插件（默认启动，会加载所有定时任务）
 * `/RemindMoYuPlugin stop` 关闭插件（会卸载所有定时任务）
 * `/RemindMoYuPlugin showGroup` 显示当前会在哪些群聊生效
-* `/RemindMoYuPlugin addGroup <groupId>` 添加群号，如`/RepeatPlugin addGroup 123456` 
+* `/RemindMoYuPlugin addGroup <groupId>` 添加群号，如`/RemindMoYuPlugin addGroup 123456` 
 * `/RemindMoYuPlugin removeGroup <groupId> ` 删除群号
 * `/RemindMoYuPlugin containGroup <groupId> ` 检查指定群号是否被设置过
 * `/RemindMoYuPlugin showContent` 查看当前语料库

@@ -9,6 +9,7 @@ import net.mamoe.mirai.utils.MiraiLogger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.RunnableScheduledFuture;
@@ -114,7 +115,8 @@ public class RemindMoYuPluginUtils {
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(ymlPath))) {
+//        try (BufferedReader reader = new BufferedReader(new FileReader(ymlPath))) {
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(ymlPath), StandardCharsets.UTF_8)) {
             Map<String, Object> map = yaml.load(reader);
             // isRunning
             pluginData.isRunning = (Boolean) map.get("isRunning");
@@ -159,7 +161,8 @@ public class RemindMoYuPluginUtils {
         Yaml yaml = new Yaml();
         String mclPath = System.getProperty("user.dir");
         String ymlPath = mclPath + "/data/" + projectName + "/" + pluginData.getSaveName() + ".yml";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ymlPath, false))) {
+//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ymlPath,      false))) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(ymlPath, false), StandardCharsets.UTF_8)) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("isRunning", pluginData.isRunning);
             map.put("groups", pluginData.groups);
