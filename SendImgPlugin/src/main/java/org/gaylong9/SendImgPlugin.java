@@ -64,10 +64,10 @@ public final class SendImgPlugin extends JavaPlugin {
                 if (imgNames.length == 0) {
                     hintMessage = "没有库存啦！";
                 } else {
-                    hintMessage = "还剩" + (imgNames.length - 1) + "张库存";
                     int idx = random.nextInt(0, imgNames.length);
                     String imgName = imgNames[idx];
                     File img = new File(pluginData.imgPath + "/" + imgName);
+                    hintMessage = imgName + "；还剩" + (imgNames.length - 1) + "张库存";
                     ExternalResource resource = ExternalResource.create(img);
                     Image image = event.getSubject().uploadImage(resource);
                     event.getSubject().sendMessage(image);
