@@ -1,13 +1,16 @@
 package org.gaylong9;
 
+import jdk.jfr.Description;
 import net.mamoe.mirai.console.command.CommandSender;
+import net.mamoe.mirai.console.command.java.JCompositeCommand;
 import net.mamoe.mirai.console.command.java.JSimpleCommand;
 import net.mamoe.mirai.utils.MiraiLogger;
+import org.gaylong9.SayHiInGroupPluginData.MODE;
 
 import java.util.Locale;
 
-public class SayHiInGroupPluginCommand extends JSimpleCommand {
-    public static final SayHiInGroupPluginCommand INSTANCE = new SayHiInGroupPluginCommand();
+public class SayHiInGroupPluginCommand extends JCompositeCommand {
+    static final SayHiInGroupPluginCommand INSTANCE = new SayHiInGroupPluginCommand();
 
     private final MiraiLogger logger = MiraiLogger.Factory.INSTANCE.create(SayHiInGroupPluginCommand.class);
     private final SayHiInGroupPluginData pluginData = SayHiInGroupPluginData.INSTANCE;
@@ -18,64 +21,46 @@ public class SayHiInGroupPluginCommand extends JSimpleCommand {
                 "sayhiingroupplugin");
     }
 
-    @Handler
-    public void onCommand(CommandSender sender, String operation) {
-        operation = operation.toLowerCase(Locale.ROOT);
-        switch (operation) {
-            case "start":
-                pluginData.isRunning = true;
-                logger.info("start SayHiInGroupPlugin success");
-                break;
-            case "stop":
-                pluginData.isRunning= false;
-                logger.info("stop SayHiInGroupPlugin success");
-                break;
-            case "showgroupmode":
-                logger.info(pluginData.mode);
-                break;
-            case "showgroup":
-                logger.info(pluginData.groups.toString());
-                break;
-            default:
-                logger.info("illegal operation");
-        }
+    @SubCommand
+    @Description("开启插件")
+    void start(CommandSender sender) {
+        pluginData.isRunning = true;
+        logger.info("start SayHiInGroupPlugin success");
     }
 
-    @Handler
-    public void onCommand(CommandSender sender, String operation, String content) {
-        operation = operation.toLowerCase(Locale.ROOT);
-        switch (operation) {
-            case "switchgroupmode":
-                switchGroupMode(content);
-                break;
-            case "addgroup":
-                addGroup(content);
-                break;
-            case "removegroup":
-                removeGroup(content);
-                break;
-            case "containgroup":
-                containGroup(content);
-                break;
-            default:
-                logger.info("illegal operation");
-        }
+    @SubCommand
+    @Description("停止插件")
+    void stop(CommandSender sender) {
+        pluginData.isRunning= false;
+        logger.info("stop SayHiInGroupPlugin success");
     }
 
-    private void switchGroupMode(String mode) {
-        mode = mode.toLowerCase(Locale.ROOT);
-        if (mode.equals("all")) {
-            pluginData.mode= "all";
-        } else if (mode.equals("specific")) {
-            pluginData.mode = "specific";
+    @SubCommand({"showgroupmode", "showGroupMode"})
+    @Description("显示群组模式")
+    void showGroupMode(CommandSender sender) {
+        logger.info(pluginData.mode.toString());
+    }
+
+    @SubCommand({"showgroup", "showGroup"})
+    @Description("展示已设置群组")
+    void showGroup(CommandSender sender) {
+        logger.info(pluginData.groups.toString());
+    }
+
+    @SubCommand({"switchgroupmode", "switchGroupMode"})
+    @Description("切换群组模式")
+    void switchGroupMode(CommandSender sender) {
+        if (pluginData.mode == MODE.ALL) {
+            pluginData.mode = MODE.SPECIFIC;
         } else {
-            logger.info("illegal mode param: " + mode + ", should be all or specific");
-            return;
+            pluginData.mode = MODE.ALL;
         }
         logger.info("switch group mode to " + pluginData.mode);
     }
 
-    private void addGroup(String content) {
+    @SubCommand({"addgroup", "addGroup"})
+    @Description("添加群组")
+    void addGroup(CommandSender sender, @Name("群组ID") String content) {
         Long groupId;
         try {
             groupId = Long.valueOf(content);
@@ -95,7 +80,9 @@ public class SayHiInGroupPluginCommand extends JSimpleCommand {
         logger.info("add group " + groupId + (isSuccess? " success": " fail"));
     }
 
-    private void removeGroup(String content) {
+    @SubCommand({"removeGroup", "removegroup"})
+    @Description("移除群组")
+    void removeGroup(CommandSender sender, @Name("群组ID") String content) {
         Long groupId;
         try {
             groupId = Long.valueOf(content);
@@ -111,10 +98,12 @@ public class SayHiInGroupPluginCommand extends JSimpleCommand {
         logger.info("remove group " + groupId + (contains? " fail": " success"));
     }
 
-    private void containGroup(String content) {
-        Long groupId;
+    @SubCommand({"containgroup", "containGroup"})
+    @Description("查询是否已经添加过指定群组")
+    void containGroup(CommandSender sender, @Name("群组ID") String content) {
+        long groupId;
         try {
-            groupId = Long.valueOf(content);
+            groupId = Long.parseLong(content);
         } catch (NullPointerException e) {
             logger.info("illegal empty group id");
             return;
@@ -125,6 +114,5 @@ public class SayHiInGroupPluginCommand extends JSimpleCommand {
 
         logger.info("reply list " + (pluginData.groups.contains(groupId)? "contains ": "does not contain ") + groupId);
     }
-
 
 }

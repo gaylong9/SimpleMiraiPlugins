@@ -14,6 +14,8 @@ import net.mamoe.mirai.message.data.PlainText;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.yaml.snakeyaml.Yaml;
 
+import org.gaylong9.SayHiInGroupPluginData.MODE;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,7 +28,7 @@ public final class SayHiInGroupplugin extends JavaPlugin {
     private static final String projectName = "org.gaylong9.SayHiInGroupPlugin";
 
     private SayHiInGroupplugin() {
-        super(new JvmPluginDescriptionBuilder(projectName, "1.1-RELEASE")
+        super(new JvmPluginDescriptionBuilder(projectName, "1.2-RELEASE")
                 .name(pluginName)
                 .author("jsy")
                 .build());
@@ -41,7 +43,7 @@ public final class SayHiInGroupplugin extends JavaPlugin {
         // 引入插件数据
         SayHiInGroupPluginData pluginData = SayHiInGroupPluginData.INSTANCE;
         loadPluginData(pluginData);
-        // mirai JAutoSavePluginData有bug
+        // mirai JAutoSavePluginData有bug，改用Java实现数据保存
         // reloadPluginData(pluginData);
         // MemoryPluginDataStorage.create().store(pluginData::getSaveName, pluginData);
         // MultiFilePluginDataStorage.create(Paths.get(pluginData.getSaveName())).store(pluginData::getSaveName, pluginData);
@@ -60,9 +62,10 @@ public final class SayHiInGroupplugin extends JavaPlugin {
                 logger.info("bot " + botId + " was at, but sayHiInGroupPlugin is not running.");
                 return;
             }
+
             // 群号码，specific模式下若不在设置群聊中则不生效
             long groupId = event.getGroup().getId();
-            if (pluginData.mode.equals("specific") && !pluginData.groups.contains(groupId)) {
+            if (pluginData.mode == MODE.SPECIFIC && !pluginData.groups.contains(groupId)) {
                 logger.info("bot " + botId + " was at, but group " + groupId + " is not in reply list");
                 return;
             }
@@ -136,7 +139,7 @@ public final class SayHiInGroupplugin extends JavaPlugin {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(ymlPath))) {
             Map<String, Object> content = yaml.load(reader);
-            pluginData.mode = (String) content.get("mode");
+            pluginData.mode = MODE.valueOf(((String) content.get("mode")).toUpperCase(Locale.ROOT));
             pluginData.isRunning = (Boolean) content.get("isRunning");
             List<?> rawGroups = (ArrayList<?>) content.get("groups");
             for (Object rawGroup : rawGroups) {
@@ -156,7 +159,7 @@ public final class SayHiInGroupplugin extends JavaPlugin {
         String ymlPath = mclPath + "/data/" + projectName + "/" + pluginData.getSaveName() + ".yml";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(ymlPath, false))) {
             HashMap<String, Object> map = new HashMap<>();
-            map.put("mode", pluginData.mode);
+            map.put("mode", pluginData.mode.toString());
             map.put("isRunning", pluginData.isRunning);
             map.put("groups", pluginData.groups);
             yaml.dump(map, writer);
