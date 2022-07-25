@@ -3,10 +3,12 @@ package org.gaylong9;
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.command.java.JSimpleCommand;
 import net.mamoe.mirai.utils.MiraiLogger;
+import net.mamoe.mirai.console.command.java.JCompositeCommand;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-public class RepeatPluginCommand extends JSimpleCommand {
+public class RepeatPluginCommand extends JCompositeCommand {
     public static final RepeatPluginCommand INSTANCE = new RepeatPluginCommand();
 
     private final MiraiLogger logger = MiraiLogger.Factory.INSTANCE.create(RepeatPluginCommand.class);
@@ -18,64 +20,52 @@ public class RepeatPluginCommand extends JSimpleCommand {
                 "repeatplugin");
     }
 
-    @Handler
-    public void onCommand(CommandSender sender, String operation) {
-        operation = operation.toLowerCase(Locale.ROOT);
-        switch (operation) {
-            case "start":
-                pluginData.isRunning = true;
-                logger.info("start RepeatPlugin success");
-                break;
-            case "stop":
-                pluginData.isRunning= false;
-                logger.info("stop RepeatPlugin success");
-                break;
-            case "showgroupmode":
-                logger.info(pluginData.mode);
-                break;
-            case "showgroup":
-                logger.info(pluginData.groups.toString());
-                break;
-            default:
-                logger.info("illegal operation");
-        }
+    @NotNull
+    @Override
+    public String getUsage() {
+        return super.getUsage();
     }
 
-    @Handler
-    public void onCommand(CommandSender sender, String operation, String content) {
-        operation = operation.toLowerCase(Locale.ROOT);
-        switch (operation) {
-            case "switchgroupmode":
-                switchGroupMode(content);
-                break;
-            case "addgroup":
-                addGroup(content);
-                break;
-            case "removegroup":
-                removeGroup(content);
-                break;
-            case "containgroup":
-                containGroup(content);
-                break;
-            default:
-                logger.info("illegal operation");
-        }
+    @SubCommand
+    @Description("开启插件")
+    public void start(CommandSender sender) {
+        pluginData.isRunning = true;
+        logger.info("start RepeatPlugin success");
     }
 
-    private void switchGroupMode(String mode) {
-        mode = mode.toLowerCase(Locale.ROOT);
-        if (mode.equals("all")) {
-            pluginData.mode= "all";
-        } else if (mode.equals("specific")) {
-            pluginData.mode = "specific";
+    @SubCommand
+    @Description("关闭插件")
+    public void stop(CommandSender sender) {
+        pluginData.isRunning= false;
+        logger.info("stop RepeatPlugin success");
+    }
+
+    @SubCommand("showgroupmode")
+    @Description("查看生效群组模式，all：所有群组；specific：指定群组")
+    public void showGroupMode(CommandSender sender) {
+        logger.info(pluginData.mode);
+    }
+
+    @SubCommand("showgroup")
+    @Description("查看指定群组")
+    public void showGroup(CommandSender sender) {
+        logger.info(pluginData.groups.toString());
+    }
+
+    @SubCommand("switchgroupmode")
+    @Description("切换群组模式")
+    public void switchGroupMode(CommandSender sender) {
+        if (pluginData.mode.equals("all")) {
+            pluginData.mode= "specific";
         } else {
-            logger.info("illegal mode param: " + mode + ", should be all or specific");
-            return;
+            pluginData.mode = "all";
         }
         logger.info("switch group mode to " + pluginData.mode);
     }
 
-    private void addGroup(String content) {
+    @SubCommand("addgroup")
+    @Description("增加指定群组")
+    public void addGroup(CommandSender sender, @Name("群组ID") String content) {
         Long groupId;
         try {
             groupId = Long.valueOf(content);
@@ -95,7 +85,9 @@ public class RepeatPluginCommand extends JSimpleCommand {
         logger.info("add group " + groupId + (isSuccess? " success": " fail"));
     }
 
-    private void removeGroup(String content) {
+    @SubCommand("removegroup")
+    @Description("移除指定群组")
+    public void removeGroup(CommandSender sender, @Name("群组ID") String content) {
         Long groupId;
         try {
             groupId = Long.valueOf(content);
@@ -111,7 +103,9 @@ public class RepeatPluginCommand extends JSimpleCommand {
         logger.info("remove group " + groupId + (contains? " fail": " success"));
     }
 
-    private void containGroup(String content) {
+    @SubCommand("containgroup")
+    @Description("是否已有指定群组")
+    public void containGroup(CommandSender sender, @Name("群组ID") String content) {
         Long groupId;
         try {
             groupId = Long.valueOf(content);
@@ -125,6 +119,5 @@ public class RepeatPluginCommand extends JSimpleCommand {
 
         logger.info("reply list " + (pluginData.groups.contains(groupId)? "contains ": "does not contain ") + groupId);
     }
-
 
 }

@@ -1,5 +1,7 @@
 package org.gaylong9;
 
+import com.sun.tools.javac.util.StringUtils;
+import jdk.internal.joptsimple.internal.Strings;
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.command.java.JSimpleCommand;
 import net.mamoe.mirai.utils.MiraiLogger;
@@ -78,6 +80,13 @@ public class SendImgPluginCommand extends JSimpleCommand {
                     pluginData.delAfterSend = false;
                 } else {
                     logger.info("should be true or false");
+                }
+                break;
+            case "setthreshold":
+                try {
+                    pluginData.threshold = Integer.parseInt(content);
+                } catch (NumberFormatException e) {
+                    logger.error("should be number");
                 }
                 break;
             default:

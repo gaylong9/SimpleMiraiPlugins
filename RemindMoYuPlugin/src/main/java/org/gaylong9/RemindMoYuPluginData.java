@@ -62,4 +62,8 @@ public class RemindMoYuPluginData {
     // 用于face生成，运行时数据，不存进yaml
     Map<String, Integer> faceId = new HashMap<>();
 
+    // 标记任务是否加载过，若掉线后重登陆不再重新加载，运行时数据，不存进yaml
+    // 若重新登陆后旧任务因bot原因无法执行，则需改为登录后清空executor和tasks重新load
+    boolean hasLoadedTasks = false;
+
 }

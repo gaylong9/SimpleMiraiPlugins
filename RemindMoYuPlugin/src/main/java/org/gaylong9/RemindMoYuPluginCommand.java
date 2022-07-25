@@ -8,6 +8,7 @@ import net.mamoe.mirai.utils.MiraiLogger;
 
 import java.time.LocalTime;
 import java.util.Locale;
+import java.util.concurrent.RunnableScheduledFuture;
 
 import static org.gaylong9.RemindMoYuPluginUtils.*;
 
@@ -24,7 +25,7 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
     }
 
     // 1个命令符
-    @Handler
+    @Handler()
     public void onCommand(CommandSender sender, String operation) {
         operation = operation.toLowerCase(Locale.ROOT);
         switch (operation) {
@@ -67,6 +68,15 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
                 }
                 for (int i = 0; i < pluginData.contents.size(); i++) {
                     logger.info("[" + i + "] " + pluginData.contents.get(i));
+                }
+                break;
+            case "showtask":
+                if(pluginData.tasks.size() == 0) {
+                    logger.info("this is no task");
+                } else {
+                    for(RunnableScheduledFuture<?> task : pluginData.tasks) {
+                        logger.info(task.toString());
+                    }
                 }
                 break;
             default:

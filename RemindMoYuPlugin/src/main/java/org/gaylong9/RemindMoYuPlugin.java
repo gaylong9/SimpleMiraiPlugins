@@ -1,6 +1,7 @@
 package org.gaylong9;
 
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.BotFactory;
 import net.mamoe.mirai.console.command.CommandManager;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
@@ -8,6 +9,7 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.utils.BotConfiguration;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 import static org.gaylong9.RemindMoYuPluginUtils.*;
@@ -27,7 +29,6 @@ public final class RemindMoYuPlugin extends JavaPlugin {
     private static final String pluginName = "RemindMoYuPlugin";
     private static final String projectName = "org.gaylong9.RemindMoYuPlugin";
 
-
     private RemindMoYuPlugin() {
         super(new JvmPluginDescriptionBuilder(projectName, "1.0-RELEASE")
                 .name(pluginName)
@@ -39,7 +40,6 @@ public final class RemindMoYuPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         logger = getLogger();
-        logger.info("Plugin loaded!");
 
         // 引入插件数据
         loadPluginData();
@@ -50,8 +50,16 @@ public final class RemindMoYuPlugin extends JavaPlugin {
 
         // Bot登陆后执行
         GlobalEventChannel.INSTANCE.subscribeAlways(BotOnlineEvent.class, event -> {
-            loadAllTasks();
+            if (pluginData.hasLoadedTasks) {
+                logger.info("has loaded tasks, maybe bot reconnect, will not load");
+            } else {
+                logger.info("bot " + event.getBot().getId() + " online, will load all tasks");
+                loadAllTasks();
+                pluginData.hasLoadedTasks = true;
+            }
         });
+
+
     }
 
     @Override

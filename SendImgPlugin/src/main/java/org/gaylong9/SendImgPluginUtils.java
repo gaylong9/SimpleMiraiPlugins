@@ -55,6 +55,7 @@ public class SendImgPluginUtils {
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(ymlPath), StandardCharsets.UTF_8)) {
             Map<String, Object> map = yaml.load(reader);
             pluginData.imgPath = (String) map.get("imgPath");
+            pluginData.threshold = (Integer) map.get("threshold");
             pluginData.delAfterSend = (Boolean) map.get("delAfterSend");
             pluginData.triggerWords.clear();
             Set<?> rawTriggers = (HashSet<?>) map.get("triggerWords");
@@ -84,6 +85,7 @@ public class SendImgPluginUtils {
             map.put("imgPath", pluginData.imgPath);
             map.put("delAfterSend", pluginData.delAfterSend);
             map.put("triggerWords", pluginData.triggerWords);
+            map.put("threshold", pluginData.threshold);
             yaml.dump(map, writer);
         } catch (IOException e) {
             e.printStackTrace();

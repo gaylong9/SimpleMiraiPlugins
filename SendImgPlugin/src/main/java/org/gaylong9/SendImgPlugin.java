@@ -31,7 +31,7 @@ public final class SendImgPlugin extends JavaPlugin {
     private SendImgPlugin() {
         super(new JvmPluginDescriptionBuilder("org.gaylong9.SendImgPlugin", "1.0-RELEASE")
                 .name("SendImgPlugin")
-                .info("根据触发词自动从指定目录发送一张图片")
+                .info("根据触发词自动从指定目录发送1至threshold张图片")
                 .author("gaylong9")
                 .build());
     }
@@ -42,6 +42,7 @@ public final class SendImgPlugin extends JavaPlugin {
 
         // 引入插件数据
         loadPluginData();
+        SendImgPluginData pluginData = SendImgPluginData.INSTANCE;
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -62,10 +63,14 @@ public final class SendImgPlugin extends JavaPlugin {
                 String[] imgNames = imgDir.list();
                 String hintMessage;
                 if (imgNames.length == 0) {
-                    hintMessage = "没有库存啦！";
-                } else {
-                    int idx = random.nextInt(0, imgNames.length);
-                    String imgName = imgNames[idx];
+                    event.getSubject().sendMessage("没有库存啦！");
+                    return;
+                }
+
+                int imgNum = imgNames.length, idx = random.nextInt(0, imgNames.length);;
+                int sendNum = Math.min(imgNum, random.nextInt(1, pluginData.threshold + 1));
+                for (int i = 0; i < sendNum; i++) {
+                    String imgName = imgNames[(idx + i) % imgNum];
                     File img = new File(pluginData.imgPath + "/" + imgName);
                     hintMessage = imgName + "；还剩" + (imgNames.length - 1) + "张库存";
                     ExternalResource resource = ExternalResource.create(img);
@@ -79,8 +84,8 @@ public final class SendImgPlugin extends JavaPlugin {
                     if (pluginData.delAfterSend) {
                         img.delete();
                     }
+                    event.getSubject().sendMessage(hintMessage);
                 }
-                event.getSubject().sendMessage(hintMessage);
             }
         });
     }

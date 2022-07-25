@@ -102,6 +102,7 @@ public class RemindMoYuPluginUtils {
             }
 
             File ymlFile = new File(ymlPath);
+
             logger.info("yml path: " + ymlPath + ", exist " + ymlFile.exists());
             if (!ymlFile.exists()) {
                 logger.info("yml data does not exist, will create new one");
@@ -154,6 +155,9 @@ public class RemindMoYuPluginUtils {
             logger.info("contents: " + pluginData.contents.toString());
         } catch (IOException e) {
             logger.error("data Yaml does not exist, load PluginData failed");
+        } catch (Exception e) {
+            logger.error("load yaml faled.");
+            logger.error(e.getMessage());
         }
     }
 
@@ -184,7 +188,13 @@ public class RemindMoYuPluginUtils {
         }
     }
 
-    static void loadTask(LocalTime taskTime) {
+    static synchronized void loadTask(LocalTime taskTime) {
+        // 尚无bot时
+        if (Bot.getInstances().size() == 0) {
+            logger.warning("there is no bot, can not load task");
+            return;
+        }
+
         int secondsPerDay = 86400;
         Bot bot = Bot.getInstances().get(0);
         LocalTime now = LocalTime.now();
@@ -214,6 +224,7 @@ public class RemindMoYuPluginUtils {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             int messageChainIdx = random.nextInt(0, pluginData.messageChains.size());
             MessageChain messageChain = pluginData.messageChains.get(messageChainIdx);
+            logger.info("groups num: " + pluginData.groups.size());
 
             for (int j = 0; j < pluginData.groups.size(); j++) {
                 Long groupId = pluginData.groups.get(j);
@@ -241,5 +252,13 @@ public class RemindMoYuPluginUtils {
         pluginData.tasks.add(
                 (RunnableScheduledFuture<?>) pluginData.executor.scheduleAtFixedRate(task, initialDelay, secondsPerDay, TimeUnit.SECONDS)
         );
+
+        logger.info("add new task " + pluginData.tasks.get(pluginData.tasks.size() - 1).hashCode());
+        logger.info("now task num: " + pluginData.tasks.size());
+        Group group = bot.getGroup(642592258);
+        if (group != null) {
+            group.sendMessage("add new task: " + pluginData.tasks.get(pluginData.tasks.size() - 1).hashCode());
+            group.sendMessage("now task num: " + pluginData.tasks.size());
+        }
     }
 }

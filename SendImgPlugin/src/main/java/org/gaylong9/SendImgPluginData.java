@@ -27,4 +27,6 @@ public class SendImgPluginData {
     // 发送后是否删除
     boolean delAfterSend = false;
 
+    // 发送图片数量上限
+    int threshold = 1;
 }
