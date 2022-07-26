@@ -140,19 +140,19 @@ public class RemindMoYuPluginUtils {
                 );
             }
             // content 和 messageChains
-            pluginData.contents.clear();
+            pluginData.msgs.clear();
             pluginData.messageChains.clear();
             List<?> rawContents = (ArrayList<?>) map.get("contents");
             for (Object rawContent : rawContents) {
                 String content = (String) rawContent;
-                pluginData.contents.add(content);
+                pluginData.msgs.add(content);
                 pluginData.messageChains.add(parseStringToMessageChain(content));
             }
 
             logger.info("isRunning: " + pluginData.isRunning);
             logger.info("groups: " + pluginData.groups.toString());
             logger.info("times: " + pluginData.times.toString());
-            logger.info("contents: " + pluginData.contents.toString());
+            logger.info("contents: " + pluginData.msgs.toString());
         } catch (IOException e) {
             logger.error("data Yaml does not exist, load PluginData failed");
         } catch (Exception e) {
@@ -170,7 +170,7 @@ public class RemindMoYuPluginUtils {
             HashMap<String, Object> map = new HashMap<>();
             map.put("isRunning", pluginData.isRunning);
             map.put("groups", pluginData.groups);
-            map.put("contents", pluginData.contents);
+            map.put("contents", pluginData.msgs);
             map.put("times", pluginData.times);
             yaml.dump(map, writer);
         } catch (IOException e) {
@@ -255,10 +255,10 @@ public class RemindMoYuPluginUtils {
 
         logger.info("add new task " + pluginData.tasks.get(pluginData.tasks.size() - 1).hashCode());
         logger.info("now task num: " + pluginData.tasks.size());
-        Group group = bot.getGroup(642592258);
-        if (group != null) {
-            group.sendMessage("add new task: " + pluginData.tasks.get(pluginData.tasks.size() - 1).hashCode());
-            group.sendMessage("now task num: " + pluginData.tasks.size());
-        }
+//        Group group = bot.getGroup(642592258);
+//        if (group != null) {
+//            group.sendMessage("add new task: " + pluginData.tasks.get(pluginData.tasks.size() - 1).hashCode());
+//            group.sendMessage("now task num: " + pluginData.tasks.size());
+//        }
     }
 }

@@ -34,7 +34,7 @@ public class RepeatPluginCommand extends JCompositeCommand {
     }
 
     @SubCommand
-    @Description("关闭插件")
+    @Description("停止插件")
     public void stop(CommandSender sender) {
         pluginData.isRunning= false;
         logger.info("stop RepeatPlugin success");
@@ -43,7 +43,7 @@ public class RepeatPluginCommand extends JCompositeCommand {
     @SubCommand("showgroupmode")
     @Description("查看生效群组模式，all：所有群组；specific：指定群组")
     public void showGroupMode(CommandSender sender) {
-        logger.info(pluginData.mode);
+        logger.info(pluginData.mode.toString());
     }
 
     @SubCommand("showgroup")
@@ -55,10 +55,10 @@ public class RepeatPluginCommand extends JCompositeCommand {
     @SubCommand("switchgroupmode")
     @Description("切换群组模式")
     public void switchGroupMode(CommandSender sender) {
-        if (pluginData.mode.equals("all")) {
-            pluginData.mode= "specific";
+        if (pluginData.mode == RepeatPluginData.MODE.ALL) {
+            pluginData.mode = RepeatPluginData.MODE.SPECIFIC;
         } else {
-            pluginData.mode = "all";
+            pluginData.mode = RepeatPluginData.MODE.ALL;
         }
         logger.info("switch group mode to " + pluginData.mode);
     }

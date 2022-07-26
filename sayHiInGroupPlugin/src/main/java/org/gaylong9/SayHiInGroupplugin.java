@@ -139,7 +139,12 @@ public final class SayHiInGroupplugin extends JavaPlugin {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(ymlPath))) {
             Map<String, Object> content = yaml.load(reader);
-            pluginData.mode = MODE.valueOf(((String) content.get("mode")).toUpperCase(Locale.ROOT));
+            Object mode = content.get("mode");
+            if (mode instanceof String){
+                pluginData.mode = MODE.valueOf(((String) content.get("mode")).toUpperCase(Locale.ROOT));
+            } else if (mode instanceof MODE) {
+                pluginData.mode = (MODE) mode;
+            }
             pluginData.isRunning = (Boolean) content.get("isRunning");
             List<?> rawGroups = (ArrayList<?>) content.get("groups");
             for (Object rawGroup : rawGroups) {

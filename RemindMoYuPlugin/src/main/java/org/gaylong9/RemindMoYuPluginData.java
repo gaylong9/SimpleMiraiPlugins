@@ -42,7 +42,7 @@ public class RemindMoYuPluginData {
     // 换行需要输入"\\n"
     // eg："该摸鱼啦！\\n[face:320]"
     // QQ表情查阅：https://github.com/mamoe/mirai/blob/dev/mirai-core-api/src/commonMain/kotlin/message/data/Face.kt
-    List<String> contents = new ArrayList<>();
+    List<String> msgs = new ArrayList<>();
 
     // 提醒时间 HH:mm，到达提醒时间时从语料中随机选择一句 发送到所有指定群聊中
     List<String> times = new ArrayList<>();

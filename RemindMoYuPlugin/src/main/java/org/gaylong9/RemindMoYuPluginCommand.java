@@ -1,18 +1,16 @@
 package org.gaylong9;
 
 import net.mamoe.mirai.console.command.CommandSender;
-import net.mamoe.mirai.console.command.java.JSimpleCommand;
+import net.mamoe.mirai.console.command.java.JCompositeCommand;
 import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.utils.MiraiLogger;
 
 import java.time.LocalTime;
-import java.util.Locale;
 import java.util.concurrent.RunnableScheduledFuture;
 
 import static org.gaylong9.RemindMoYuPluginUtils.*;
 
-public class RemindMoYuPluginCommand extends JSimpleCommand {
+public class RemindMoYuPluginCommand extends JCompositeCommand {
     public static final RemindMoYuPluginCommand INSTANCE = new RemindMoYuPluginCommand();
 
     private final MiraiLogger logger = MiraiLogger.Factory.INSTANCE.create(RemindMoYuPluginCommand.class);
@@ -24,101 +22,80 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
                 "remindmoyuplugin");
     }
 
-    // 1个命令符
-    @Handler()
-    public void onCommand(CommandSender sender, String operation) {
-        operation = operation.toLowerCase(Locale.ROOT);
-        switch (operation) {
-            case "start":
-                // 装载所有任务
-                if (pluginData.isRunning) {
-                    return;
-                }
-                loadPluginData();
-                pluginData.isRunning = true;
-                loadAllTasks();
-                logger.info("start RemindMoYuPlugin, load all tasks");
-                break;
-            case "stop":
-                // 卸载所有任务
-                if (!pluginData.isRunning) {
-                    return;
-                }
-                pluginData.isRunning= false;
-                for (int i = 0; i < pluginData.tasks.size(); i++) {
-                    pluginData.executor.remove(pluginData.tasks.get(i));
-                }
-                pluginData.tasks.clear();
-                logger.info("stop RemindMoYuPlugin, unload all tasks");
-                break;
-            case "showgroup":
-                logger.info(pluginData.groups.toString());
-                break;
-            case "showtime":
-                if (pluginData.times.isEmpty()) {
-                    logger.info("there is no send msg time");
-                }
-                for (int i = 0; i < pluginData.times.size(); i++) {
-                    logger.info("[" + i + "] " + pluginData.times.get(i));
-                }
-                break;
-            case "showcontent":
-                if (pluginData.contents.isEmpty()) {
-                    logger.info("there is no content");
-                }
-                for (int i = 0; i < pluginData.contents.size(); i++) {
-                    logger.info("[" + i + "] " + pluginData.contents.get(i));
-                }
-                break;
-            case "showtask":
-                if(pluginData.tasks.size() == 0) {
-                    logger.info("this is no task");
-                } else {
-                    for(RunnableScheduledFuture<?> task : pluginData.tasks) {
-                        logger.info(task.toString());
-                    }
-                }
-                break;
-            default:
-                logger.info("illegal operation");
+    @SubCommand
+    @Description("开启插件")
+    public void start(CommandSender sender) {
+        // 装载所有任务
+        if (pluginData.isRunning) {
+            return;
+        }
+        loadPluginData();
+        pluginData.isRunning = true;
+        loadAllTasks();
+        logger.info("start RemindMoYuPlugin, load all tasks");
+    }
+
+    @SubCommand
+    @Description("停止插件")
+    public void stop(CommandSender sender) {
+        // 卸载所有任务
+        if (!pluginData.isRunning) {
+            return;
+        }
+        pluginData.isRunning= false;
+        for (int i = 0; i < pluginData.tasks.size(); i++) {
+            pluginData.executor.remove(pluginData.tasks.get(i));
+        }
+        pluginData.tasks.clear();
+        logger.info("stop RemindMoYuPlugin, unload all tasks");
+    }
+
+    @SubCommand({"showgroup"})
+    @Description("展示生效群组")
+    public void showGroup(CommandSender sender) {
+        logger.info(pluginData.groups.toString());
+    }
+
+    @SubCommand({"showtime"})
+    @Description("展示已设置时间")
+    public void showTime(CommandSender sender) {
+        if (pluginData.times.isEmpty()) {
+            logger.info("there is no send msg time");
+        }
+        for (int i = 0; i < pluginData.times.size(); i++) {
+            logger.info("[" + i + "] " + pluginData.times.get(i));
         }
     }
 
-    // 2个命令符
-    @Handler
-    public void onCommand(CommandSender sender, String operation, String content) {
-        operation = operation.toLowerCase(Locale.ROOT);
-        switch (operation) {
-            case "addgroup":
-                addGroup(content);
-                break;
-            case "removegroup":
-                removeGroup(content);
-                break;
-            case "containgroup":
-                containGroup(content);
-                break;
-            case "addcontent":
-                addContent(content);
-                break;
-            case "removecontent":
-                removeContent(content);
-                break;
-            case "addtime":
-                addTime(content);
-                break;
-            case "removetime":
-                removeTime(content);
-                break;
-            default:
-                logger.info("illegal operation");
+    @SubCommand({"showmsg"})
+    @Description("展示已设置语料")
+    public void showContent(CommandSender sender) {
+        if (pluginData.msgs.isEmpty()) {
+            logger.info("there is no Msg");
+        }
+        for (int i = 0; i < pluginData.msgs.size(); i++) {
+            logger.info("[" + i + "] " + pluginData.msgs.get(i));
         }
     }
 
-    private void addGroup(String content) {
-        Long groupId;
+    @SubCommand({"showtask"})
+    @Description("展示运行中任务")
+    public void  showTask(CommandSender sender) {
+        if(pluginData.tasks.size() == 0) {
+            logger.info("this is no task");
+        } else {
+            for(RunnableScheduledFuture<?> task : pluginData.tasks) {
+                logger.info(task.toString());
+            }
+        }
+    }
+
+    @SubCommand({"addgroup"})
+    @Description("添加生效群组")
+    public void addGroup(CommandSender sender, @Name("群组ID") String content) {
+        long groupId;
         try {
-            groupId = Long.valueOf(content);
+            groupId = Long.parseLong(content);
         } catch (NullPointerException e) {
             logger.info("illegal empty group id");
             return;
@@ -134,10 +111,12 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
         logger.info("add group " + groupId + " success");
     }
 
-    private void removeGroup(String content) {
-        Long groupId;
+    @SubCommand({"removegroup"})
+    @Description("移除生效群组")
+    public void removeGroup(CommandSender sender, @Name("群组ID") String content) {
+        long groupId;
         try {
-            groupId = Long.valueOf(content);
+            groupId = Long.parseLong(content);
         } catch (NullPointerException e) {
             logger.info("illegal empty group id");
             return;
@@ -149,10 +128,12 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
         logger.info("remove group " + groupId + " success");
     }
 
-    private void containGroup(String content) {
-        Long groupId;
+    @SubCommand({"containgroup"})
+    @Description("查询是否已设置过指定群组")
+    public void containGroup(CommandSender sender, @Name("群组ID") String content) {
+        long groupId;
         try {
-            groupId = Long.valueOf(content);
+            groupId = Long.parseLong(content);
         } catch (NullPointerException e) {
             logger.info("illegal empty group id");
             return;
@@ -164,15 +145,19 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
         logger.info("send list " + (pluginData.groups.contains(groupId)? "contains ": "does not contain ") + groupId);
     }
 
-    private void addContent(String content) {
+    @SubCommand({"addmsg"})
+    @Description("添加语料；QQ表情[face:QQ表情编号]或[face:QQ表情名]；换行\\\\n")
+    public void addContent(CommandSender sender, @Name("语料") String content) {
         MessageChain chain = parseStringToMessageChain(content);
         if (chain != null) {
-            pluginData.contents.add(content);
+            pluginData.msgs.add(content);
             pluginData.messageChains.add(chain);
         }
     }
 
-    private void removeContent(String content) {
+    @SubCommand({"removemsg"})
+    @Description("移除语料，参数为showContent中的编号")
+    public void removeContent(CommandSender sender, @Name("语料编号") String content) {
         int idx;
         try {
             idx = Integer.parseInt(content);
@@ -180,15 +165,17 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
             logger.error(content + "is not a number");
             return;
         }
-        if (idx < 0 || idx >= pluginData.contents.size()) {
+        if (idx < 0 || idx >= pluginData.msgs.size()) {
             logger.error(content + " should between 0 ~ contents.size");
             return;
         }
-        pluginData.contents.remove(idx);
+        pluginData.msgs.remove(idx);
         pluginData.messageChains.remove(idx);
     }
 
-    private void addTime(String content) {
+    @SubCommand({"addtime"})
+    @Description("添加时间，格式应为HH:mm，24小时制")
+    public void addTime(CommandSender sender, @Name("时间") String content) {
         if (content.length() != 5) {
             logger.error("time format should be HH:mm");
             return;
@@ -223,7 +210,9 @@ public class RemindMoYuPluginCommand extends JSimpleCommand {
         loadTask(taskTime);
     }
 
-    private void removeTime(String content) {
+    @SubCommand({"removetime"})
+    @Description("移除时间，参数为showTime中的编号")
+    public void removeTime(CommandSender sender, @Name("时间编号") String content) {
         int idx;
         try {
             idx = Integer.parseInt(content);

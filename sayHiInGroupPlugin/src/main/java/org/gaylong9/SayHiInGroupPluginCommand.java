@@ -6,50 +6,51 @@ import net.mamoe.mirai.console.command.java.JCompositeCommand;
 import net.mamoe.mirai.console.command.java.JSimpleCommand;
 import net.mamoe.mirai.utils.MiraiLogger;
 import org.gaylong9.SayHiInGroupPluginData.MODE;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
 public class SayHiInGroupPluginCommand extends JCompositeCommand {
-    static final SayHiInGroupPluginCommand INSTANCE = new SayHiInGroupPluginCommand();
+    public static final SayHiInGroupPluginCommand INSTANCE = new SayHiInGroupPluginCommand();
 
     private final MiraiLogger logger = MiraiLogger.Factory.INSTANCE.create(SayHiInGroupPluginCommand.class);
     private final SayHiInGroupPluginData pluginData = SayHiInGroupPluginData.INSTANCE;
 
     private SayHiInGroupPluginCommand() {
         super(SayHiInGroupplugin.INSTANCE,
-                "sayHiInGroupPlugin",
+                "SayHiInGroupPlugin",
                 "sayhiingroupplugin");
     }
 
     @SubCommand
     @Description("开启插件")
-    void start(CommandSender sender) {
+    public void start(CommandSender sender) {
         pluginData.isRunning = true;
         logger.info("start SayHiInGroupPlugin success");
     }
 
     @SubCommand
     @Description("停止插件")
-    void stop(CommandSender sender) {
+    public void stop(CommandSender sender) {
         pluginData.isRunning= false;
         logger.info("stop SayHiInGroupPlugin success");
     }
 
-    @SubCommand({"showgroupmode", "showGroupMode"})
+    @SubCommand({"showgroupmode"})
     @Description("显示群组模式")
-    void showGroupMode(CommandSender sender) {
+    public void showGroupMode(CommandSender sender) {
         logger.info(pluginData.mode.toString());
     }
 
-    @SubCommand({"showgroup", "showGroup"})
+    @SubCommand({"showgroup"})
     @Description("展示已设置群组")
-    void showGroup(CommandSender sender) {
+    public void showGroup(CommandSender sender) {
         logger.info(pluginData.groups.toString());
     }
 
-    @SubCommand({"switchgroupmode", "switchGroupMode"})
+    @SubCommand({"switchgroupmode"})
     @Description("切换群组模式")
-    void switchGroupMode(CommandSender sender) {
+    public void switchGroupMode(CommandSender sender) {
         if (pluginData.mode == MODE.ALL) {
             pluginData.mode = MODE.SPECIFIC;
         } else {
@@ -58,9 +59,9 @@ public class SayHiInGroupPluginCommand extends JCompositeCommand {
         logger.info("switch group mode to " + pluginData.mode);
     }
 
-    @SubCommand({"addgroup", "addGroup"})
+    @SubCommand({"addgroup"})
     @Description("添加群组")
-    void addGroup(CommandSender sender, @Name("群组ID") String content) {
+    public void addGroup(CommandSender sender, @Name("群组ID") String content) {
         Long groupId;
         try {
             groupId = Long.valueOf(content);
@@ -80,9 +81,9 @@ public class SayHiInGroupPluginCommand extends JCompositeCommand {
         logger.info("add group " + groupId + (isSuccess? " success": " fail"));
     }
 
-    @SubCommand({"removeGroup", "removegroup"})
+    @SubCommand({"removegroup"})
     @Description("移除群组")
-    void removeGroup(CommandSender sender, @Name("群组ID") String content) {
+    public void removeGroup(CommandSender sender, @Name("群组ID") String content) {
         Long groupId;
         try {
             groupId = Long.valueOf(content);
@@ -98,9 +99,9 @@ public class SayHiInGroupPluginCommand extends JCompositeCommand {
         logger.info("remove group " + groupId + (contains? " fail": " success"));
     }
 
-    @SubCommand({"containgroup", "containGroup"})
+    @SubCommand({"containgroup"})
     @Description("查询是否已经添加过指定群组")
-    void containGroup(CommandSender sender, @Name("群组ID") String content) {
+    public void containGroup(CommandSender sender, @Name("群组ID") String content) {
         long groupId;
         try {
             groupId = Long.parseLong(content);

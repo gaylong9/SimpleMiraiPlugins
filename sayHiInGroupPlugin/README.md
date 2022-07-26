@@ -11,32 +11,14 @@
 `mirai-console/data/org.gaylong9.SayHiInGroupPlugin/SayHiInGroupPlugin.yml`。
 
 
-
-## Todo
-
-- [x] cmd名称统一
-- [x] cmd增加小写次名
-- [x] 增加删除group的cmd
-- [x] cmd规范log
-- [x] 自动保存，数据持久化到yml（Java的JAutoSavePluginData有bug，当前只好混用kotlin/自己实现持久化，使用了YAML与SnakeYAML）
-
-
-
 ## Usage
 
 下载[`SayHiInGroupPlugin.jar`](https://github.com/gaylong9/SimpleMiraiPlugins/releases/tag/jar)放在`mirai-console/plugins`下，启动mcl。
 
-指令 `/sayHiInGroupPlugin <operation> (content)`：
+指令 `/sayHiInGroupPlugin <Operation> [content]`；支持全小写`/sayhiingroupplugin <operation> [content]`。
 
-* `/sayHiInGroupPlugin start` 启动插件（默认启动）
-* `/sayHiInGroupPlugin stop` 关闭插件
-* `/sayHiInGroupPlugin switchGroupMode all/specific` 
-	* `all`：bot所在的所有群聊都生效（默认）
-	* `specific`：指定群聊生效
-* `/sayHiInGroupPlugin showGroupMode` 
-* `/sayHiInGroupPlugin showGroup` 显示specific模式下哪些群聊可以生效
-* `/sayHiInGroupPlugin addGroup <groupId>` 添加群号，用于specific模式
-* `/sayHiInGroupPlugin removeGroup <groupId> ` 删除群号，用于specific模式
-* `/sayHiInGroupPlugin containGroup <groupId> ` 检查群号是否生效，用于specific模式
-* 指令中字母全小写同样可以，如`/sayhiingroupplugin switchgroupmode specific` 
+本插件有“群组模式”设置项，为ALL时，表示对Bot所在的所有群聊生效；为SPECIFIC时，仅对指定的群组生效。
 
+可使用`showGroupMode`命令查看当前群组模式；使用`switchGroupMode`命令切换；使用`addGroup`命令添加生效群组。
+
+在mcl中输入`?`查看全部命令。
